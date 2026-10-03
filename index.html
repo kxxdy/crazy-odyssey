@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CRAZY ODYSSEY - Value & Trade Calculator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{font-family:'Inter','Noto Sans KR','Apple SD Gothic Neo',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;background-color:#0d0e12;color:#e2e8f0}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:#12141a}
+::-webkit-scrollbar-thumb{background:#2b303c;border-radius:4px}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+input[type=number]{-moz-appearance:textfield}
+.item-glow-mythic{border-left:3px solid #ef4444!important}
+.item-glow-legendary{border-left:3px solid #f59e0b!important}
+.item-glow-epic{border-left:3px solid #a855f7!important}
+.item-glow-rare{border-left:3px solid #3b82f6!important}
+.item-glow-uncommon{border-left:3px solid #22c55e!important}
+.item-glow-common{border-left:3px solid #4b5563!important}
+.item-glow-ancient{border-left:3px solid #f97316!important}
+.item-glow-hero{border-left:3px solid #ec4899!important}
+.font-mono{font-family:inherit!important;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200">
+
+<header class="pt-4 px-4 max-w-7xl mx-auto w-full">
+<div class="bg-[#161922] border border-[#282d3c] rounded-lg p-3 md:px-6 md:py-3 flex flex-wrap items-center justify-between gap-4">
+<div class="flex items-center space-x-3">
+<div>
+<h1 class="font-extrabold text-white text-base md:text-lg tracking-wider">CRAZY ODYSSEY</h1>
+<span class="text-xs text-amber-400/90 font-medium tracking-widest block -mt-1">MADE BY kxx</span>
+</div>
+</div>
+<nav class="flex items-center space-x-1 sm:space-x-2 text-sm font-semibold overflow-x-auto py-1">
+<button onclick="switchTab('calculator')" id="tab-calculator" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-amber-400 border border-amber-500/30 bg-amber-500/10">Calculator</button>
+<button onclick="switchTab('sword')" id="tab-sword" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">검</button>
+<button onclick="switchTab('armor')" id="tab-armor" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">갑옷</button>
+<button onclick="switchTab('accessory')" id="tab-accessory" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">장신구</button>
+<button onclick="switchTab('loot')" id="tab-loot" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">전리품</button>
+<button onclick="switchTab('helmet')" id="tab-helmet" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">투구</button>
+<button onclick="switchTab('shoes')" id="tab-shoes" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">신발</button>
+</nav>
+<div class="hidden lg:flex items-center space-x-2">
+<a href="#" class="px-3 py-1.5 rounded-lg bg-[#202532] hover:bg-[#2b3244] text-xs text-gray-300 font-medium transition border border-gray-700/50 flex items-center">Discord</a>
+<button onclick="openFeedback()" class="px-3 py-1.5 rounded-lg bg-[#202532] hover:bg-[#2b3244] text-xs text-gray-300 font-medium transition border border-gray-700/50">피드백</button>
+<span class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg font-mono">Live Database</span>
+</div>
+</div>
+</header>
+
+<main class="max-w-7xl mx-auto w-full px-4 py-6 flex-grow">
+
+<section id="view-calculator" class="tab-view space-y-5">
+<div class="text-center space-y-1">
+<h2 class="text-2xl md:text-3xl font-bold text-white tracking-tight">Crazy Odyssey Trade Calculator</h2>
+<p class="text-xs md:text-sm text-gray-400">Build a trade on both sides and instantly see real-time value + tax difference.</p>
+</div>
+
+<div id="trade-status-banner" class="w-full py-2.5 px-4 rounded-md font-bold text-center text-sm md:text-base transition-all duration-300 bg-gray-800/80 text-gray-300 border border-gray-700/50">EQUAL TRADE (NO ITEMS SELECTED)</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div class="bg-[#141720] border border-[#242938] rounded-lg p-4 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center pb-3 mb-3 border-b border-gray-800">
+<span class="text-sm font-bold text-amber-400 flex items-center">YOUR OFFER (내 제안)</span>
+<span class="text-xs text-gray-400 font-mono" id="left-item-count">0 / 12 Slots</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5" id="left-grid"></div>
+</div>
+<div class="mt-4 pt-3 border-t border-gray-800/80 space-y-2">
+<div class="bg-[#10121a] p-2.5 rounded-md border border-gray-800 flex justify-between items-center">
+<span class="text-xs font-semibold text-amber-300 flex items-center">Gold (골드):</span>
+<input type="number" id="left-gold-input" oninput="updateCalculations()" placeholder="0" min="0" class="bg-[#1a1e2b] text-right font-mono text-xs md:text-sm text-amber-300 rounded-lg px-2.5 py-1 border border-gray-700/60 focus:border-amber-400 focus:outline-none w-32 md:w-40 font-bold">
+</div>
+<div class="bg-[#10121a] p-3 rounded-md border border-gray-800/80 space-y-1.5 text-xs font-mono">
+<div class="flex justify-between items-center text-amber-400 font-bold"><span>Total Value:</span><span id="left-total-val" class="text-sm">0 G</span></div>
+<div class="flex justify-between items-center text-gray-400"><span>Item Value:</span><span id="left-item-val">0 G</span></div>
+<div class="flex justify-between items-center text-gray-400"><span>Tax Cost (5%):</span><span id="left-tax-val" class="text-red-400">0 G</span></div>
+</div>
+</div>
+</div>
+
+<div class="bg-[#141720] border border-[#242938] rounded-lg p-4 flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center pb-3 mb-3 border-b border-gray-800">
+<span class="text-sm font-bold text-blue-400 flex items-center">THEIR OFFER (상대 제안)</span>
+<span class="text-xs text-gray-400 font-mono" id="right-item-count">0 / 12 Slots</span>
+</div>
+<div class="grid grid-cols-3 sm:grid-cols-4 gap-2.5" id="right-grid"></div>
+</div>
+<div class="mt-4 pt-3 border-t border-gray-800/80 space-y-2">
+<div class="bg-[#10121a] p-2.5 rounded-md border border-gray-800 flex justify-between items-center">
+<span class="text-xs font-semibold text-amber-300 flex items-center">Gold (골드):</span>
+<input type="number" id="right-gold-input" oninput="updateCalculations()" placeholder="0" min="0" class="bg-[#1a1e2b] text-right font-mono text-xs md:text-sm text-amber-300 rounded-lg px-2.5 py-1 border border-gray-700/60 focus:border-amber-400 focus:outline-none w-32 md:w-40 font-bold">
+</div>
+<div class="bg-[#10121a] p-3 rounded-md border border-gray-800/80 space-y-1.5 text-xs font-mono">
+<div class="flex justify-between items-center text-blue-400 font-bold"><span>Total Value:</span><span id="right-total-val" class="text-sm">0 G</span></div>
+<div class="flex justify-between items-center text-gray-400"><span>Item Value:</span><span id="right-item-val">0 G</span></div>
+<div class="flex justify-between items-center text-gray-400"><span>Tax Cost (5%):</span><span id="right-tax-val" class="text-red-400">0 G</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="bg-[#141720] border border-[#242938] rounded-lg p-4 space-y-3">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div class="flex items-center space-x-3">
+<span class="text-xs md:text-sm font-bold text-gray-300">Value Difference:</span>
+<span id="diff-badge" class="px-3 py-1 rounded-lg text-xs md:text-sm font-mono font-bold bg-gray-800 text-gray-300 border border-gray-700">0 G (0.0%)</span>
+</div>
+<button onclick="resetCalculator()" class="px-4 py-2 rounded-md bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/40 text-xs font-bold transition flex items-center space-x-1.5"><span>Reset All</span></button>
+</div>
+<div class="w-full bg-[#0a0b0e] h-3 rounded-full overflow-hidden p-0.5 border border-gray-800 flex">
+<div id="gauge-left" class="h-full bg-amber-500 transition-all duration-300 rounded-l-full" style="width:50%"></div>
+<div id="gauge-right" class="h-full bg-blue-500 transition-all duration-300 rounded-r-full" style="width:50%"></div>
+</div>
+</div>
+</section>
+
+<section id="view-sword" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">검 도감 (Swords)</h2><p class="text-xs text-gray-400">무기 시세 및 능력치</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('sword', this.value)" placeholder="검 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-sword-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+<section id="view-armor" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">갑옷 도감 (Armor)</h2><p class="text-xs text-gray-400">갑옷 시세 및 방어력</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('armor', this.value)" placeholder="갑옷 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-armor-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+<section id="view-accessory" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">장신구 도감 (Accessories)</h2><p class="text-xs text-gray-400">장신구 능력치 및 획득처</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('accessory', this.value)" placeholder="장신구 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-accessory-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+
+<section id="view-loot" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">전리품 도감 (Monster Loot Drops)</h2><p class="text-xs text-gray-400">봄, 여름, 가을, 겨울, 사막, 약탈단 캠프 몬스터 전리품 목록</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('loot', this.value)" placeholder="전리품/몬스터 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-loot-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+<section id="view-helmet" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">투구 도감 (Helmets)</h2><p class="text-xs text-gray-400">머리 방어구 시세 정보</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('helmet', this.value)" placeholder="투구 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-helmet-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+<section id="view-shoes" class="tab-view hidden space-y-4">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<div><h2 class="text-xl font-bold text-white">신발 도감 (Shoes & Boots)</h2><p class="text-xs text-gray-400">발 방어구 시세 정보</p></div>
+<div class="relative w-48 sm:w-64"><input type="text" onkeyup="filterCatalog('shoes', this.value)" placeholder="신발 검색..." class="w-full bg-[#161922] border border-gray-700 rounded-md px-3 py-1.5 text-xs text-gray-200 focus:outline-none focus:border-amber-400"></div>
+</div>
+<div id="catalog-shoes-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+</section>
+
+
+</main>
+
+<div id="item-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4">
+<div class="bg-[#161922] border border-[#2b3142] w-full max-w-lg rounded-lg p-5 flex flex-col max-h-[85vh] space-y-4 relative">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3">
+<h3 class="font-bold text-white text-base flex items-center">Select item to send</h3>
+<button onclick="closeModal()" class="text-gray-400 hover:text-white text-lg px-2 py-0.5">&times;</button>
+</div>
+<div class="relative">
+<input type="text" id="modal-search" oninput="renderModalItems()" placeholder="Search items by name or drop source..." class="w-full bg-[#0d0e12] border border-gray-700/80 rounded-md pl-4 pr-4 py-2 text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-400">
+</div>
+<div class="flex space-x-1.5 overflow-x-auto pb-1 text-xs font-semibold">
+<button onclick="setModalCategory('all')" id="mcat-all" class="modal-cat-btn px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40">All</button>
+<button onclick="setModalCategory('weapon')" id="mcat-weapon" class="modal-cat-btn px-2.5 py-1 rounded-lg bg-gray-800 text-gray-400 hover:text-white">Weapons</button>
+<button onclick="setModalCategory('loot')" id="mcat-loot" class="modal-cat-btn px-2.5 py-1 rounded-lg bg-gray-800 text-gray-400 hover:text-white">Loot</button>
+<button onclick="setModalCategory('armor')" id="mcat-armor" class="modal-cat-btn px-2.5 py-1 rounded-lg bg-gray-800 text-gray-400 hover:text-white">Armor</button>
+<button onclick="setModalCategory('helmet')" id="mcat-helmet" class="modal-cat-btn px-2.5 py-1 rounded-lg bg-gray-800 text-gray-400 hover:text-white">Helmets</button>
+</div>
+<div id="modal-item-list" class="overflow-y-auto space-y-2 pr-1 flex-grow max-h-[380px]"></div>
+</div>
+</div>
+
+<div id="ragna-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeRagna()">
+<div class="bg-[#161922] border border-[#2b3142] w-full max-w-md rounded-lg p-5 flex flex-col max-h-[85vh] overflow-y-auto space-y-4">
+<div class="flex justify-between items-start border-b border-gray-800 pb-3">
+<div><h3 id="rg-title" class="font-bold text-white text-base"></h3><p id="rg-stat" class="text-xs text-gray-400 mt-1"></p></div>
+<button onclick="closeRagna()" class="text-gray-400 hover:text-white text-lg px-2 py-0.5">&times;</button>
+</div>
+<div class="flex justify-between items-center text-sm"><span class="text-gray-300">공격 옵션</span><select id="rg-atk" onchange="ragnaCalc()" class="bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"></select></div>
+<div class="flex justify-between items-center text-sm"><span class="text-gray-300">특성 개수</span><select id="rg-trait" onchange="ragnaCalc()" class="bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"><option value="1">1개 (I)</option><option value="2">2개 (II)</option><option value="3" selected>3개 (III)</option></select></div>
+<div class="border-t border-gray-800 pt-3 space-y-2">
+<div class="flex justify-between items-center text-sm"><span class="text-gray-400">공격력</span><span id="rg-power" class="text-white"></span></div>
+<div class="flex justify-between items-center text-sm"><span class="text-gray-400">공격 옵션 시세</span><span id="rg-atk-price" class="text-white"></span></div>
+<div class="flex justify-between items-center text-sm"><span id="rg-trait-label" class="text-gray-400"></span><span id="rg-trait-price" class="text-white"></span></div>
+<div class="flex justify-between items-center text-sm font-bold"><span class="text-amber-400">합계 (강화 제외)</span><span id="rg-total" class="text-amber-400"></span></div>
+</div>
+<button id="rg-add" onclick="ragnaAdd()" class="hidden w-full py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-sm font-bold">거래에 올리기</button>
+<p class="text-xs text-gray-500">강화 단계에 따라 가격이 더 붙어요. 거래가 거의 없는 옵션은 시세가 없어요.</p>
+<table class="w-full text-sm"><thead><tr class="text-left text-xs text-gray-500 border-b border-gray-800"><th class="pb-2 font-medium">공격 옵션</th><th class="pb-2 font-medium">공격력</th><th class="pb-2 font-medium text-right">시세</th></tr></thead><tbody id="rg-table" class="text-gray-300"></tbody></table>
+</div>
+</div>
+
+<div id="fb-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeFeedback()">
+<div class="bg-[#161922] border border-[#2b3142] w-full max-w-md rounded-lg p-5 space-y-3">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3"><h3 class="font-bold text-white text-base">피드백 보내기</h3><button onclick="closeFeedback()" class="text-gray-400 hover:text-white text-lg px-2 py-0.5">&times;</button></div>
+<select id="fb-kind" class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"><option>시세 의견</option><option>오류 제보</option><option>아이템 추가 요청</option><option>기타</option></select>
+<input id="fb-name" maxlength="30" placeholder="닉네임 (선택)" class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-400">
+<textarea id="fb-text" maxlength="1000" rows="5" placeholder="어떤 아이템이 얼마에 거래되는지 알려주시면 큰 도움이 돼요." class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"></textarea>
+<div class="flex items-center justify-between"><span id="fb-msg" class="text-xs text-gray-400"></span><button onclick="sendFeedback()" class="px-4 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-sm font-bold">보내기</button></div>
+</div>
+</div>
+
+<footer class="border-t border-gray-800/60 bg-[#0a0b0e] py-4 px-4 text-center text-xs text-gray-500">
+<div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+<p>CRAZY ODYSSEY - Value & Catalog App &copy; 2026. All rights reserved.</p>
+<div class="flex items-center gap-4"><button onclick="openFeedback()" class="text-gray-400 hover:text-white underline underline-offset-2">피드백 보내기</button><p class="font-semibold text-amber-400/80">MADE BY kxx</p></div>
+</div>
+</footer>
+
+<script>
+let activeSide=null,activeSlotIndex=null,activeModalCategory='all';
+const leftSlots=Array(12).fill(null),rightSlots=Array(12).fill(null);
+
+const GR={'일반':'common','레어':'uncommon','유니크':'epic','고대':'ancient','전설':'legendary','영웅':'hero'};
+const G=(id,name,category,type,grade,value,stat,src,lvl,trade,sell)=>({id,name,category,type,grade,rarity:GR[grade],value,stat,src,lvl,trade,sell});
+const itemDatabase=[
+G("w1","나무 몽둥이","weapon","무기","일반",0,"공격력 8","",null,true,null),
+G("w2","뼈다귀","weapon","무기","일반",91,"공격력 15","",null,true,null),
+G("w3","나무 검","weapon","무기","일반",1100,"공격력 25","",null,true,null),
+G("w4","경광봉","weapon","무기","일반",2900,"공격력 45","",5,true,null),
+G("w5","크로노스 인페르노","weapon","무기","레어",9200,"공격력 75","",10,true,null),
+G("w6","상어 칼","weapon","무기","레어",27000,"공격력 115","",15,true,null),
+G("w7","다이아몬드 칼","weapon","무기","레어",53000,"공격력 170","",20,true,null),
+G("w8","불 칼","weapon","무기","유니크",100000,"공격력 220","",25,true,null),
+G("w9","붉은빛광검","weapon","무기","유니크",270000,"공격력 330","",30,true,null),
+G("w10","드래곤 왕의 검","weapon","무기","유니크",810000,"공격력 470","",35,true,null),
+G("w11","엘렉시아스","weapon","무기","고대",2000000,"공격력 810","좀비 0.033%, 얼음 슬라임 0.033%, 외 2곳",40,true,null),
+G("w12","플람베리온","weapon","무기","고대",2900000,"공격력 1,060","북극곰 0.026%, 독버섯 0.027%, 외 2곳",45,true,null),
+G("w13","이클립스","weapon","무기","고대",5800000,"공격력 1,750","스켈레톤 0.026%, 고블린 약탈꾼 0.028%, 외 3곳",50,true,null),
+G("w18","옵시디언","weapon","무기","고대",7200000,"공격력 2,100","골렘 0.025%, 전갈 0.026%, 외 3곳",55,true,null),
+G("w19","스펙터","weapon","무기","고대",9000000,"공격력 2,500","미이라 0.026%, 붉은 미이라 0.027%, 외 1곳",60,true,null),
+G("w20","더스크","weapon","무기","고대",11000000,"공격력 3,000","귀신 0.027%, 눈사람 0.0063%, 외 3곳",65,true,null),
+G("w14","적월선","weapon","무기","전설",14000000,"공격력 3,600","눈사람 0.0095%, 눈 좀비 0.0099%, 외 8곳",70,true,null),
+G("w17","버서커의 대검","weapon","무기","전설",18000000,"공격력 3,750","검은 늑대 0.0031%, 설산 고블린 0.0032%, 외 12곳",80,true,null),
+G("w15","번개 망치","weapon","무기","전설",18000000,"공격력 3,750","검은 늑대 0.0031%, 설산 고블린 0.0032%, 외 12곳",80,true,null),
+G("w16","작열의 검","weapon","무기","전설",18000000,"공격력 3,750","검은 늑대 0.0031%, 설산 고블린 0.0032%, 외 12곳",80,true,null),
+G("w21","아비스","weapon","무기","전설",0,"공격력 4,300 · 스킬 피해 +5%","공성 포수 0.0019%, 철포 전사 0.0019%, 외 13곳",90,true,null),
+G("w22","아나테마","weapon","무기","전설",0,"공격력 4,300 · 치명타 확률 +5% · 치명타 피해 +25%","공성 포수 0.0019%, 철포 전사 0.0019%, 외 13곳",90,true,null),
+G("w23","커버넌트","weapon","무기","전설",0,"공격력 4,300 · 몹 피해 +5%","공성 포수 0.0019%, 철포 전사 0.0019%, 외 13곳",90,true,null),
+G("w24","라그나","weapon","무기","영웅",0,"공격력 4,950 · 보스 피해 +5%","코페시 전사 0.0019%, 나일 창병 0.0019%, 외 5곳",100,true,null),
+
+{id:'l1',name:'토끼 간',category:'loot',type:'전리품',rarity:'common',value:15,dropBy:'토끼 (봄)',dropRate:'100%'},
+{id:'l2',name:'사슴 뿔',category:'loot',type:'전리품',rarity:'common',value:25,dropBy:'사슴 (봄)',dropRate:'75%'},
+{id:'l3',name:'돼지 가죽',category:'loot',type:'전리품',rarity:'common',value:35,dropBy:'돼지 (봄)',dropRate:'65%'},
+{id:'l4',name:'독버섯 갓',category:'loot',type:'전리품',rarity:'uncommon',value:180,dropBy:'독버섯 (봄, 가을)',dropRate:'35%'},
+{id:'l5',name:'스켈레톤의 뼈',category:'loot',type:'전리품',rarity:'uncommon',value:220,dropBy:'스켈레톤 (봄)',dropRate:'35%'},
+{id:'l6',name:'골렘의 조각',category:'loot',type:'전리품',rarity:'rare',value:280,dropBy:'골렘 (봄, 겨울)',dropRate:'40%'},
+{id:'l7',name:'늑대 털',category:'loot',type:'전리품',rarity:'common',value:90,dropBy:'늑대 (여름)',dropRate:'30%'},
+{id:'l8',name:'곰 가죽',category:'loot',type:'전리품',rarity:'uncommon',value:130,dropBy:'곰 (여름)',dropRate:'35%'},
+{id:'l9',name:'좀비 팔',category:'loot',type:'전리품',rarity:'uncommon',value:160,dropBy:'좀비 (여름)',dropRate:'35%'},
+{id:'l10',name:'귀신의 혼',category:'loot',type:'전리품',rarity:'rare',value:450,dropBy:'귀신 (여름)',dropRate:'28%'},
+{id:'l11',name:'달팽이 껍질',category:'loot',type:'전리품',rarity:'common',value:40,dropBy:'달팽이 (가을)',dropRate:'55%'},
+{id:'l12',name:'여우 꼬리',category:'loot',type:'전리품',rarity:'common',value:65,dropBy:'여우 (가을)',dropRate:'45%'},
+{id:'l13',name:'게 집게',category:'loot',type:'전리품',rarity:'uncommon',value:85,dropBy:'게 (가을)',dropRate:'35%'},
+{id:'l14',name:'전갈의 독침',category:'loot',type:'전리품',rarity:'rare',value:310,dropBy:'전갈 (가을)',dropRate:'30%'},
+{id:'l15',name:'미이라의 붕대',category:'loot',type:'전리품',rarity:'rare',value:350,dropBy:'미이라 (가을)',dropRate:'25%'},
+{id:'l16',name:'붉은 미이라의 붕대',category:'loot',type:'전리품',rarity:'epic',value:420,dropBy:'붉은 미이라 (가을)',dropRate:'28%'},
+{id:'l17',name:'스파르타 창촉',category:'loot',type:'전리품',rarity:'epic',value:950,dropBy:'스파르타 창병 (가을, 가을 확장)',dropRate:'24%'},
+{id:'l18',name:'슬라임 젤리',category:'loot',type:'전리품',rarity:'uncommon',value:160,dropBy:'얼음 슬라임 (겨울)',dropRate:'35%'},
+{id:'l19',name:'북극곰 가죽',category:'loot',type:'전리품',rarity:'uncommon',value:190,dropBy:'북극곰 (겨울)',dropRate:'35%'},
+{id:'l20',name:'눈사람의 핵',category:'loot',type:'전리품',rarity:'rare',value:500,dropBy:'눈사람 (겨울)',dropRate:'26%'},
+{id:'l21',name:'눈 좀비의 팔',category:'loot',type:'전리품',rarity:'rare',value:580,dropBy:'눈 좀비 (겨울)',dropRate:'25%'},
+{id:'l22',name:'겨울광대의 가면',category:'loot',type:'전리품',rarity:'epic',value:720,dropBy:'겨울광대 (겨울)',dropRate:'24%'},
+{id:'l23',name:'겨울 오소리 가죽',category:'loot',type:'전리품',rarity:'rare',value:650,dropBy:'겨울 오소리 (겨울 확장)',dropRate:'28%'},
+{id:'l24',name:'검은 늑대 가죽',category:'loot',type:'전리품',rarity:'rare',value:700,dropBy:'검은 늑대 (겨울 확장)',dropRate:'30%'},
+{id:'l25',name:'설산 고블린 어금니',category:'loot',type:'전리품',rarity:'rare',value:780,dropBy:'설산 고블린 (겨울 확장)',dropRate:'27%'},
+{id:'l26',name:'예티 털가죽',category:'loot',type:'전리품',rarity:'epic',value:880,dropBy:'예티 (겨울 확장)',dropRate:'25%'},
+{id:'l27',name:'기사단 휘장',category:'loot',type:'전리품',rarity:'epic',value:920,dropBy:'중세기사 (봄 확장)',dropRate:'24%'},
+{id:'l28',name:'철시 화살',category:'loot',type:'전리품',rarity:'epic',value:980,dropBy:'철시 궁병단 (봄 확장)',dropRate:'24%'},
+{id:'l29',name:'공성 볼트',category:'loot',type:'전리품',rarity:'epic',value:1050,dropBy:'공성 포수 (봄 확장)',dropRate:'24%'},
+{id:'l30',name:'철포 탄피',category:'loot',type:'전리품',rarity:'epic',value:1120,dropBy:'철포 전사 (봄 확장)',dropRate:'26%'},
+{id:'l31',name:'스파르타 문장',category:'loot',type:'전리품',rarity:'epic',value:1200,dropBy:'스파르타 검병 (가을 확장)',dropRate:'24%'},
+{id:'l32',name:'투척창 조각',category:'loot',type:'전리품',rarity:'epic',value:1280,dropBy:'스파르타 돌격대 (가을 확장)',dropRate:'24%'},
+{id:'l33',name:'그리핀 깃털',category:'loot',type:'전리품',rarity:'legendary',value:1500,dropBy:'그리핀 (가을 확장)',dropRate:'26%'},
+{id:'l34',name:'케라우노스 편자',category:'loot',type:'전리품',rarity:'legendary',value:2500,dropBy:'케라우노스 (가을 확장)',dropRate:'40%'},
+{id:'l35',name:'코페시 검날',category:'loot',type:'전리품',rarity:'legendary',value:1650,dropBy:'코페시 전사 (사막)',dropRate:'24%'},
+{id:'l36',name:'나일 창촉',category:'loot',type:'전리품',rarity:'legendary',value:1750,dropBy:'나일 창병 (사막)',dropRate:'24%'},
+{id:'l37',name:'아누비스 문장',category:'loot',type:'전리품',rarity:'legendary',value:1900,dropBy:'아누비스 사제 (사막)',dropRate:'30%'},
+{id:'l38',name:'나일 화살촉',category:'loot',type:'전리품',rarity:'legendary',value:1800,dropBy:'나일 궁수 (사막)',dropRate:'24%'},
+{id:'l39',name:'라의 불씨',category:'loot',type:'전리품',rarity:'legendary',value:2100,dropBy:'라의 불꽃 사제 (사막)',dropRate:'24%'},
+{id:'l40',name:'심판자의 핵',category:'loot',type:'전리품',rarity:'mythic',value:3800,dropBy:'사막의 심판자 (사막)',dropRate:'40%'},
+{id:'l41',name:'파라오의 인장',category:'loot',type:'전리품',rarity:'mythic',value:4500,dropBy:'파라오 (사막)',dropRate:'50%'},
+{id:'l42',name:'약탈품 주머니',category:'loot',type:'전리품',rarity:'uncommon',value:400,dropBy:'고블린 약탈꾼 Lv54 · 약탈단 전사 Lv58 (약탈단)',dropRate:'35% / 50%'},
+{id:'l43',name:'약탈단 보물',category:'loot',type:'전리품',rarity:'rare',value:1500,dropBy:'고블린 약탈꾼 Lv87 · 약탈단 전사 Lv95 (약탈단)',dropRate:'35% / 50%'},
+
+G("a1","천 갑옷","armor","갑옷","일반",10,"방어력 120","미니롱 100%",null,true,null),
+G("a2","가죽 갑옷","armor","갑옷","일반",40,"방어력 340","",null,true,null),
+G("a3","강철 갑옷","armor","갑옷","레어",500000,"방어력 640","곰 0.030%, 좀비 0.030%, 외 5곳",35,true,null),
+G("a4","사슬 갑옷","armor","갑옷","레어",1500000,"방어력 900","북극곰 0.027%, 독버섯 0.027%, 외 8곳",45,true,null),
+G("a5","기사 갑옷","armor","갑옷","유니크",3000000,"방어력 1,300","골렘 0.017%, 전갈 0.017%, 외 8곳",55,true,null),
+G("a6","판금 갑옷","armor","갑옷","유니크",6000000,"방어력 1,750","눈사람 0.017%, 눈 좀비 0.018%, 외 11곳",70,true,null),
+G("a7","용린 갑옷","armor","갑옷","고대",10000000,"방어력 2,200","검은 늑대 0.010%, 설산 고블린 0.010%, 외 19곳",80,true,null),
+G("a8","월식 갑옷","armor","갑옷","전설",25000000,"방어력 3,150","스파르타 창병 0.0074%, 약탈단 전사 0.0075%, 외 10곳",95,true,null),
+G("h1","탈로스의 투구 (하급)","helmet","투구","레어",0,"방어력 150 · 최대 체력 +3%","",80,true,null),
+G("h2","탈로스의 투구 (중급)","helmet","투구","유니크",0,"방어력 300 · 최대 체력 +5%","",80,true,null),
+G("h3","탈로스의 투구 (상급)","helmet","투구","고대",0,"방어력 450 · 최대 체력 +6.5%","",90,true,null),
+G("h4","탈로스의 투구 (최상급)","helmet","투구","전설",0,"방어력 600 · 최대 체력 +8%","",100,true,null),
+G("s1","물살의 장화","shoes","신발","유니크",0,"이동 속도 +4","낚시",null,false,2500),
+G("s2","어부의 샌들","shoes","신발","레어",0,"이동 속도 +2","낚시",null,false,400),
+G("x1","서리 반지","accessory","장신구","전설",0,"방어력 1,400 · 반응 둔화 +1","프로스트베인 1등 20%",70,false,null),
+G("x2","암흑의 견장","accessory","장신구","전설",0,"방어력 1,400 · 반응 실드 +1","다크나이트 1등 15%",85,false,null),
+G("x3","옹심 목걸이","accessory","장신구","전설",0,"스킬 쿨다운 −10%","월드 드래곤 1등 40%",50,false,null),
+G("x4","용골 부적","accessory","장신구","전설",0,"방어력 1,200","본 드래곤 1등 30%",50,false,null)
+];
+const EST={};
+itemDatabase.forEach(i=>{if(EST[i.id]){i.value=EST[i.id];i.est=true;}});
+['w21','w22','w23','w24'].forEach(id=>{itemDatabase.find(i=>i.id===id).note='눌러서 시세 확인';});
+const RO={common:0,uncommon:1,rare:2,epic:3,legendary:4,mythic:5};
+const lootSort=(a,b)=>((RO[a.rarity]??9)-(RO[b.rarity]??9))||(a.value-b.value);
+function fillCatalog(c,cat,list){
+(cat==='loot'?list.slice().sort(lootSort):list).forEach(i=>c.appendChild(catalogCard(i)));
+}
+
+
+const RG_ITEMS={w24:{base:4950,trait:5000000,zero:null},w21:{base:4300,trait:5000000,zero:15000000,step:7500000},w22:{base:4300,trait:5000000,zero:15000000,step:7500000},w23:{base:4300,trait:5000000,zero:15000000,step:7500000}};
+const RG_PRICE={1:20000000,2:40000000,3:60000000,4:80000000,5:100000000,6:120000000};
+const RG_TRAIT=5000000;
+let rgCfg=null,rgPick=null,rgItemId=null;
+const fmtKr=n=>{const e=Math.floor(n/1e8),m=Math.round((n%1e8)/1e4);let t='';if(e)t+=e+'억';if(m)t+=(t?' ':'')+m.toLocaleString()+'만';return (t||'0')+' G';};
+const rgLabel=o=>o===0?'무옵션 (0%)':(o>0?'+':'−')+Math.abs(o)+'%';
+const rgPower=o=>Math.floor(rgCfg.base*(1+o/100));
+const rgPrice=o=>rgCfg.step?(o>=0?rgCfg.zero+o*rgCfg.step:undefined):(o>=1?RG_PRICE[o]:undefined);
+function openRagna(id,pick){
+rgItemId=id;
+const item=itemDatabase.find(i=>i.id===id);rgCfg=RG_ITEMS[id];
+document.getElementById('rg-title').innerText=item.name+' 시세';
+document.getElementById('rg-stat').innerText=item.stat;
+const sel=document.getElementById('rg-atk');sel.innerHTML='';
+for(let o=6;o>=-6;o--){if(o===0&&!rgCfg.zero)continue;const op=document.createElement('option');op.value=o;op.textContent=rgLabel(o);if(o===6)op.selected=true;sel.appendChild(op);}
+const tb=document.getElementById('rg-table');tb.innerHTML='';
+for(let o=6;o>=(rgCfg.zero?0:1);o--){const tr=document.createElement('tr');tr.className='border-b border-gray-800/60';tr.innerHTML=`<td class="py-1.5">${rgLabel(o)}</td><td>${rgPower(o).toLocaleString()}</td><td class="text-right text-white">${fmtKr(rgPrice(o))}</td>`;tb.appendChild(tr);}
+document.getElementById('rg-trait-label').innerText=`특성 시세 (개당 ${fmtKr(rgCfg.trait)})`;
+ragnaCalc();
+document.getElementById('rg-add').classList.toggle('hidden',!pick);
+document.getElementById('ragna-modal').classList.remove('hidden');
+}
+function ragnaAdd(){
+const o=parseInt(document.getElementById('rg-atk').value,10),t=parseInt(document.getElementById('rg-trait').value,10);
+const price=rgPrice(o);if(price===undefined||!rgPick)return;
+const item=itemDatabase.find(i=>i.id===rgItemId);
+const arr=rgPick.side==='left'?leftSlots:rightSlots;
+arr[rgPick.index]={...item,name:`${item.name} ${o>0?'+':''}${o}%·${t}`,value:price+t*rgCfg.trait,qty:1,note:undefined};
+closeRagna();renderGrids();updateCalculations();
+}
+function closeRagna(){document.getElementById('ragna-modal').classList.add('hidden');}
+function ragnaCalc(){
+const o=parseInt(document.getElementById('rg-atk').value,10),t=parseInt(document.getElementById('rg-trait').value,10);
+const price=rgPrice(o),tp=t*rgCfg.trait;
+document.getElementById('rg-power').innerText=rgPower(o).toLocaleString();
+document.getElementById('rg-trait-price').innerText=fmtKr(tp);
+if(price===undefined){document.getElementById('rg-atk-price').innerText='시세 없음';document.getElementById('rg-total').innerText='시세 없음';return;}
+document.getElementById('rg-atk-price').innerText=fmtKr(price);
+document.getElementById('rg-total').innerText=fmtKr(price+tp);
+}
+
+const FEEDBACK_WEBHOOK='';
+function openFeedback(){document.getElementById('fb-msg').innerText='';document.getElementById('fb-modal').classList.remove('hidden');}
+function closeFeedback(){document.getElementById('fb-modal').classList.add('hidden');}
+async function sendFeedback(){
+const msg=document.getElementById('fb-msg'),text=document.getElementById('fb-text').value.trim();
+const name=document.getElementById('fb-name').value.trim(),kind=document.getElementById('fb-kind').value;
+if(!text){msg.innerText='내용을 적어주세요.';return;}
+if(!FEEDBACK_WEBHOOK){msg.innerText='아직 연결 전이에요.';return;}
+try{const last=parseInt(localStorage.getItem('fbLast')||'0',10);if(Date.now()-last<30000){msg.innerText='잠시 후에 다시 보내주세요.';return;}}catch(e){}
+try{
+const r=await fetch(FEEDBACK_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'가치 측정기 피드백',content:`**${kind}**${name?' · '+name:''}\n${text}`.slice(0,1900),allowed_mentions:{parse:[]}})});
+if(r.ok){msg.innerText='보냈어요. 고마워요!';document.getElementById('fb-text').value='';try{localStorage.setItem('fbLast',String(Date.now()));}catch(e){}}
+else msg.innerText='전송에 실패했어요. 잠시 후 다시 시도해주세요.';
+}catch(e){msg.innerText='전송에 실패했어요. 잠시 후 다시 시도해주세요.';}
+}
+
+window.onload=function(){renderGrids();renderCatalogs();updateCalculations();};
+
+
+function renderGrids(){
+const l=document.getElementById('left-grid'),r=document.getElementById('right-grid');
+l.innerHTML='';r.innerHTML='';
+for(let i=0;i<12;i++){l.appendChild(createSlotElement('left',i,leftSlots[i]));r.appendChild(createSlotElement('right',i,rightSlots[i]));}
+document.getElementById('left-item-count').innerText=`${leftSlots.filter(s=>s!==null).length} / 12 Slots`;
+document.getElementById('right-item-count').innerText=`${rightSlots.filter(s=>s!==null).length} / 12 Slots`;
+}
+
+function createSlotElement(side,index,data){
+const slot=document.createElement('div');
+slot.className='relative aspect-square rounded-md border flex flex-col items-center justify-between p-1.5 transition duration-200 overflow-hidden ';
+if(!data){
+slot.className+='bg-[#10121a] border-gray-800/80 hover:border-amber-500/50 hover:bg-[#181c29] cursor-pointer group';
+slot.onclick=()=>openModal(side,index);
+slot.innerHTML=`<div class="flex-grow flex items-center justify-center text-gray-600 group-hover:text-amber-400 transition"><span class="text-2xl leading-none">+</span></div><span class="text-[10px] text-gray-600 font-mono">Empty</span>`;
+}else{
+slot.className+=`bg-[#181c28] item-glow-${data.rarity}`;
+slot.innerHTML=`
+<button onclick="removeItem('${side}',${index});event.stopPropagation();" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600/80 hover:bg-red-600 text-white text-[10px] flex items-center justify-center transition z-10">&times;</button>
+<div class="text-center w-full mt-1 px-1">
+<div class="text-[11px] font-bold text-white truncate leading-tight">${data.name}</div>
+<div class="text-[9px] text-amber-400 font-mono">${(data.value*data.qty).toLocaleString()} G</div>
+</div>
+<div class="w-full mt-1 flex items-center justify-between bg-[#0a0b0e] rounded-lg p-0.5 border border-gray-700/60">
+<button onclick="changeQty('${side}',${index},-1);event.stopPropagation();" class="w-4 h-4 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded flex items-center justify-center text-[10px] font-bold">-</button>
+<input type="number" min="1" value="${data.qty}" onchange="setQty('${side}',${index},this.value)" onclick="event.stopPropagation();" class="w-12 text-center bg-transparent text-[11px] font-bold font-mono text-amber-300 focus:outline-none">
+<button onclick="changeQty('${side}',${index},1);event.stopPropagation();" class="w-4 h-4 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded flex items-center justify-center text-[10px] font-bold">+</button>
+</div>`;
+}
+return slot;
+}
+
+function changeQty(side,index,delta){
+const s=side==='left'?leftSlots:rightSlots;
+if(s[index]){s[index].qty=Math.max(1,s[index].qty+delta);renderGrids();updateCalculations();}
+}
+function setQty(side,index,val){
+const s=side==='left'?leftSlots:rightSlots;
+if(s[index]){const p=parseInt(val,10);s[index].qty=isNaN(p)||p<1?1:p;renderGrids();updateCalculations();}
+}
+function removeItem(side,index){
+if(side==='left')leftSlots[index]=null;else rightSlots[index]=null;
+renderGrids();updateCalculations();
+}
+function resetCalculator(){
+for(let i=0;i<12;i++){leftSlots[i]=null;rightSlots[i]=null;}
+document.getElementById('left-gold-input').value='';
+document.getElementById('right-gold-input').value='';
+renderGrids();updateCalculations();
+}
+
+function updateCalculations(){
+const leftGold=parseInt(document.getElementById('left-gold-input').value,10)||0;
+const leftItemVal=leftSlots.reduce((a,s)=>a+(s?s.value*s.qty:0),0);
+const leftTotal=leftGold+leftItemVal,leftTax=Math.floor(leftTotal*0.05);
+const rightGold=parseInt(document.getElementById('right-gold-input').value,10)||0;
+const rightItemVal=rightSlots.reduce((a,s)=>a+(s?s.value*s.qty:0),0);
+const rightTotal=rightGold+rightItemVal,rightTax=Math.floor(rightTotal*0.05);
+
+document.getElementById('left-item-val').innerText=`${leftItemVal.toLocaleString()} G`;
+document.getElementById('left-total-val').innerText=`${leftTotal.toLocaleString()} G`;
+document.getElementById('left-tax-val').innerText=`${leftTax.toLocaleString()} G`;
+document.getElementById('right-item-val').innerText=`${rightItemVal.toLocaleString()} G`;
+document.getElementById('right-total-val').innerText=`${rightTotal.toLocaleString()} G`;
+document.getElementById('right-tax-val').innerText=`${rightTax.toLocaleString()} G`;
+
+const diff=rightTotal-leftTotal;
+const banner=document.getElementById('trade-status-banner'),diffBadge=document.getElementById('diff-badge');
+const sumTotal=leftTotal+rightTotal;
+let leftPct=50,rightPct=50;
+if(sumTotal>0){leftPct=Math.min(Math.max((leftTotal/sumTotal)*100,10),90);rightPct=100-leftPct;}
+document.getElementById('gauge-left').style.width=`${leftPct}%`;
+document.getElementById('gauge-right').style.width=`${rightPct}%`;
+
+const base="w-full py-2.5 px-4 rounded-md font-bold text-center text-sm md:text-base ";
+const badgeBase="px-3 py-1 rounded-lg text-xs md:text-sm font-mono font-bold ";
+if(leftTotal===0&&rightTotal===0){
+banner.className=base+"bg-gray-800/80 text-gray-300 border border-gray-700";
+banner.innerText="EQUAL TRADE (NO ITEMS SELECTED)";
+diffBadge.innerText="0 G (0.0%)";
+diffBadge.className=badgeBase+"bg-gray-800 text-gray-300 border border-gray-700";
+}else{
+const pctDiff=leftTotal===0?100:((diff/leftTotal)*100).toFixed(1);
+const sign=diff>=0?'+':'';
+diffBadge.innerText=`${sign}${diff.toLocaleString()} G (${sign}${pctDiff}%)`;
+if(Math.abs(diff)<=(leftTotal*0.05)){
+banner.className=base+"bg-amber-500/20 text-amber-300 border border-amber-500/40";
+banner.innerText="FAIR TRADE";
+diffBadge.className=badgeBase+"bg-amber-500/20 text-amber-300 border border-amber-500/40";
+}else if(diff>0){
+if(diff>leftTotal*0.5){banner.className=base+"bg-emerald-600/30 text-emerald-300 border border-emerald-500/50";banner.innerText="BIG WIN (YOU WIN BIG)";}
+else{banner.className=base+"bg-green-600/20 text-green-400 border border-green-500/40";banner.innerText="YOU WIN";}
+diffBadge.className=badgeBase+"bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+}else{
+if(Math.abs(diff)>leftTotal*0.5){banner.className=base+"bg-red-700/30 text-red-300 border border-red-600/50";banner.innerText="BIG LOSE (YOU LOSE BIG)";}
+else{banner.className=base+"bg-red-600/20 text-red-400 border border-red-500/40";banner.innerText="YOU LOSE";}
+diffBadge.className=badgeBase+"bg-red-500/20 text-red-300 border border-red-500/40";
+}
+}
+}
+
+function openModal(side,index){
+activeSide=side;activeSlotIndex=index;
+document.getElementById('item-modal').classList.remove('hidden');
+document.getElementById('modal-search').value='';
+renderModalItems();
+}
+function closeModal(){document.getElementById('item-modal').classList.add('hidden');}
+function setModalCategory(cat){
+activeModalCategory=cat;
+document.querySelectorAll('.modal-cat-btn').forEach(b=>{b.className="modal-cat-btn px-2.5 py-1 rounded-lg bg-gray-800 text-gray-400 hover:text-white";});
+document.getElementById(`mcat-${cat}`).className="modal-cat-btn px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-300 border border-amber-500/40";
+renderModalItems();
+}
+function renderModalItems(){
+const q=document.getElementById('modal-search').value.toLowerCase();
+const c=document.getElementById('modal-item-list');
+c.innerHTML='';
+const filtered=itemDatabase.filter(i=>i.trade!==false&&(activeModalCategory==='all'||i.category===activeModalCategory)&&(i.name.toLowerCase().includes(q)||(i.dropBy&&i.dropBy.toLowerCase().includes(q))));
+if(activeModalCategory==='loot')filtered.sort(lootSort);
+if(!filtered.length){c.innerHTML=`<div class="text-center text-gray-500 text-xs py-8">검색된 아이템이 없습니다.</div>`;return;}
+filtered.forEach(item=>{
+const card=document.createElement('div');
+card.className='bg-[#10121a] hover:bg-[#1f2433] border border-gray-800 hover:border-amber-500/40 rounded-md p-2.5 flex items-center justify-between cursor-pointer transition';
+card.onclick=()=>selectModalItem(item);
+card.innerHTML=`<div class="flex items-center space-x-3"><div class="w-8 h-8 rounded-lg bg-gray-800 border border-gray-700 flex items-center justify-center font-bold text-amber-400 text-xs">${item.name.charAt(0)}</div><div><div class="text-xs font-bold text-white">${item.name}</div><div class="text-[10px] text-gray-400 font-mono">${item.dropBy?item.dropBy:item.type}</div></div></div><div class="text-right"><div class="text-xs font-bold text-amber-400 font-mono">${item.note||(item.value.toLocaleString()+' G')}</div><div class="text-[9px] text-gray-500 capitalize">${item.grade||item.rarity}</div></div>`;
+c.appendChild(card);
+});
+}
+function selectModalItem(item){
+if(item.note){rgPick={side:activeSide,index:activeSlotIndex};closeModal();openRagna(item.id,true);return;}
+const t=activeSide==='left'?leftSlots:rightSlots;
+t[activeSlotIndex]={...item,qty:item.category==='loot'?100:1};
+closeModal();renderGrids();updateCalculations();
+}
+function switchTab(tabId){
+document.querySelectorAll('.tab-view').forEach(v=>v.classList.add('hidden'));
+document.querySelectorAll('.nav-btn').forEach(b=>{b.className="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5";});
+document.getElementById(`view-${tabId}`).classList.remove('hidden');
+document.getElementById(`tab-${tabId}`).className="nav-btn px-3 py-1.5 rounded-lg transition-all text-amber-400 border border-amber-500/30 bg-amber-500/10";
+}
+
+function catalogCard(item){
+const el=document.createElement('div');
+el.className=`bg-[#141720] border border-gray-800 rounded-md p-3 flex flex-col justify-between space-y-2 item-glow-${item.rarity}`;
+const price=item.value?`${item.est?'추정 ':''}${item.value.toLocaleString()} G`:(item.note||'—');
+if(item.note){el.classList.add('cursor-pointer','hover:border-amber-500/40');el.onclick=()=>openRagna(item.id);}
+const badge=`<span class="text-[10px] px-2 py-0.5 rounded bg-gray-800 text-amber-300 font-mono font-bold shrink-0 ml-2">${price}</span>`;
+if(item.dropBy){
+el.innerHTML=`<div><div class="flex justify-between items-start"><h4 class="font-bold text-sm text-white">${item.name}</h4>${badge}</div><p class="text-xs text-gray-400 mt-1">드랍: ${item.dropBy}</p></div>${item.dropRate?`<div class="text-[10px] text-emerald-400 font-mono">드랍률: ${item.dropRate}</div>`:''}`;
+return el;
+}
+const row=(k,v)=>`<div class="flex justify-between gap-3 text-xs"><span class="text-gray-500 shrink-0">${k}</span><span class="text-gray-300 text-right">${v}</span></div>`;
+el.innerHTML=`<div class="space-y-1.5"><div class="flex justify-between items-start mb-1"><h4 class="font-bold text-sm text-white">${item.name}</h4>${badge}</div>${row('등급',item.grade)}${row('능력치',item.stat)}${row('획득처',item.src||'—')}${row('착용 레벨',item.lvl||'—')}${item.sell?row('판매가',item.sell.toLocaleString()+' G'):''}${row('거래',item.trade===false?'불가':'가능')}</div>`;
+return el;
+}
+function catalogItems(cat){const m={sword:'weapon'};return itemDatabase.filter(i=>i.category===(m[cat]||cat));}
+function renderCatalogs(){
+['sword','armor','accessory','loot','helmet','shoes'].forEach(cat=>{
+const c=document.getElementById(`catalog-${cat}-list`);
+if(!c)return;
+c.innerHTML='';
+fillCatalog(c,cat,catalogItems(cat));
+});
+}
+function filterCatalog(cat,query){
+const c=document.getElementById(`catalog-${cat}-list`),q=query.toLowerCase();
+c.innerHTML='';
+fillCatalog(c,cat,catalogItems(cat).filter(i=>i.name.toLowerCase().includes(q)||(i.dropBy&&i.dropBy.toLowerCase().includes(q))||(i.src&&i.src.toLowerCase().includes(q))));
+}
+</script>
+</body>
+</html>

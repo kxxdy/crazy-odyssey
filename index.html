@@ -24,6 +24,21 @@ input[type=number]{-moz-appearance:textfield}
 .item-glow-ancient{border-left:3px solid #f97316!important}
 .item-glow-hero{border-left:3px solid #ec4899!important}
 .font-mono{font-family:inherit!important;font-variant-numeric:tabular-nums}
+
+/* phone only (desktop untouched): trade window side by side, 2-column catalogs */
+@media (max-width:767px){
+#view-calculator>.grid{grid-template-columns:1fr 1fr!important;gap:.5rem!important}
+#view-calculator>.grid>div{padding:.5rem!important}
+#view-calculator>.grid>div .text-sm{font-size:.7rem!important}
+#view-calculator>.grid>div .text-xs{font-size:.65rem!important}
+#view-calculator>.grid>div .space-y-1\.5>.flex{flex-wrap:wrap;gap:.1rem}
+#left-grid,#right-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.35rem!important}
+#left-grid>div,#right-grid>div{padding:.25rem!important}
+#left-grid input[type=number],#right-grid input[type=number]{width:2.4rem!important;font-size:.65rem!important}
+#left-gold-input,#right-gold-input{width:5rem!important}
+[id^="catalog-"][id$="-list"]{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:.5rem!important}
+[id^="catalog-"][id$="-list"]>div{padding:.6rem!important}
+}
 </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-amber-500/30 selection:text-amber-200">
@@ -46,8 +61,7 @@ input[type=number]{-moz-appearance:textfield}
 <button onclick="switchTab('shoes')" id="tab-shoes" class="nav-btn px-3 py-1.5 rounded-lg transition-all text-gray-400 hover:text-white hover:bg-white/5">신발</button>
 </nav>
 <div class="hidden lg:flex items-center space-x-2">
-<a href="#" class="px-3 py-1.5 rounded-lg bg-[#202532] hover:bg-[#2b3244] text-xs text-gray-300 font-medium transition border border-gray-700/50 flex items-center">Discord</a>
-<button onclick="openFeedback()" class="px-3 py-1.5 rounded-lg bg-[#202532] hover:bg-[#2b3244] text-xs text-gray-300 font-medium transition border border-gray-700/50">피드백</button>
+<button onclick="openFeedback()" class="px-3 py-1.5 rounded-lg bg-[#202532] hover:bg-[#2b3244] text-xs text-gray-300 font-medium transition border border-gray-700/50">문의하기</button>
 <span class="text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1.5 rounded-lg font-mono">Live Database</span>
 </div>
 </div>
@@ -215,19 +229,18 @@ input[type=number]{-moz-appearance:textfield}
 </div>
 
 <div id="fb-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4" onclick="if(event.target===this)closeFeedback()">
-<div class="bg-[#161922] border border-[#2b3142] w-full max-w-md rounded-lg p-5 space-y-3">
-<div class="flex justify-between items-center border-b border-gray-800 pb-3"><h3 class="font-bold text-white text-base">피드백 보내기</h3><button onclick="closeFeedback()" class="text-gray-400 hover:text-white text-lg px-2 py-0.5">&times;</button></div>
-<select id="fb-kind" class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-amber-400"><option>시세 의견</option><option>오류 제보</option><option>아이템 추가 요청</option><option>기타</option></select>
-<input id="fb-name" maxlength="30" placeholder="닉네임 (선택)" class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-400">
-<textarea id="fb-text" maxlength="1000" rows="5" placeholder="어떤 아이템이 얼마에 거래되는지 알려주시면 큰 도움이 돼요." class="w-full bg-[#0d0e12] border border-gray-700 rounded-lg px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-amber-400"></textarea>
-<div class="flex items-center justify-between"><span id="fb-msg" class="text-xs text-gray-400"></span><button onclick="sendFeedback()" class="px-4 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-sm font-bold">보내기</button></div>
+<div class="bg-[#161922] border border-[#2b3142] w-full max-w-sm rounded-lg p-5 space-y-3">
+<div class="flex justify-between items-center border-b border-gray-800 pb-3"><h3 class="font-bold text-white text-base">문의하기</h3><button onclick="closeFeedback()" class="text-gray-400 hover:text-white text-lg px-2 py-0.5">&times;</button></div>
+<p class="text-sm text-gray-300">문의와 제보는 카카오톡 오픈채팅으로 받고 있어요.</p>
+<a href="https://open.kakao.com/o/s5RhdBQi" target="_blank" rel="noopener" class="block text-center py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-sm font-bold transition">문의하기</a>
+<p class="text-xs text-gray-500">아이템 시세나 거래 사례를 알려주시면 사이트의 시세를 더 정확하게 다듬는 데 큰 도움이 돼요.</p>
 </div>
 </div>
 
 <footer class="border-t border-gray-800/60 bg-[#0a0b0e] py-4 px-4 text-center text-xs text-gray-500">
 <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
 <p>CRAZY ODYSSEY - Value & Catalog App &copy; 2026. All rights reserved.</p>
-<div class="flex items-center gap-4"><button onclick="openFeedback()" class="text-gray-400 hover:text-white underline underline-offset-2">피드백 보내기</button><p class="font-semibold text-amber-400/80">MADE BY kxx</p></div>
+<div class="flex items-center gap-4"><button onclick="openFeedback()" class="text-gray-400 hover:text-white underline underline-offset-2">문의하기</button><p class="font-semibold text-amber-400/80">MADE BY kxx</p></div>
 </div>
 </footer>
 
@@ -377,21 +390,8 @@ document.getElementById('rg-atk-price').innerText=fmtKr(price);
 document.getElementById('rg-total').innerText=fmtKr(price+tp);
 }
 
-const FEEDBACK_WEBHOOK='';
-function openFeedback(){document.getElementById('fb-msg').innerText='';document.getElementById('fb-modal').classList.remove('hidden');}
+function openFeedback(){document.getElementById('fb-modal').classList.remove('hidden');}
 function closeFeedback(){document.getElementById('fb-modal').classList.add('hidden');}
-async function sendFeedback(){
-const msg=document.getElementById('fb-msg'),text=document.getElementById('fb-text').value.trim();
-const name=document.getElementById('fb-name').value.trim(),kind=document.getElementById('fb-kind').value;
-if(!text){msg.innerText='내용을 적어주세요.';return;}
-if(!FEEDBACK_WEBHOOK){msg.innerText='아직 연결 전이에요.';return;}
-try{const last=parseInt(localStorage.getItem('fbLast')||'0',10);if(Date.now()-last<30000){msg.innerText='잠시 후에 다시 보내주세요.';return;}}catch(e){}
-try{
-const r=await fetch(FEEDBACK_WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:'가치 측정기 피드백',content:`**${kind}**${name?' · '+name:''}\n${text}`.slice(0,1900),allowed_mentions:{parse:[]}})});
-if(r.ok){msg.innerText='보냈어요. 고마워요!';document.getElementById('fb-text').value='';try{localStorage.setItem('fbLast',String(Date.now()));}catch(e){}}
-else msg.innerText='전송에 실패했어요. 잠시 후 다시 시도해주세요.';
-}catch(e){msg.innerText='전송에 실패했어요. 잠시 후 다시 시도해주세요.';}
-}
 
 window.onload=function(){renderGrids();renderCatalogs();updateCalculations();};
 
